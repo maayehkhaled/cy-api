@@ -1,57 +1,71 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:node:.
 version: 2.1
 orbs:
-  node: circleci/node@5
-jobs:
-  test-node:
-    # Install node dependencies and run tests
-    executor: node/default
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          name: Run tests
-          command: npm test --passWithNoTests
-  build-node:
-    # Build node project
-    executor: node/default
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+  # https://github.com/cypress-io/circleci-orb
+  cypress: cypress-io/cypress@1
+
+executors:
+  with-ff:
     docker:
-      - image: cimg/base:stable
-    steps:
-      # Replace this with steps to deploy to users
-      - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found github actions config
-          command: ':'
+      # https://github.com/cypress-io/cypress-docker-images
+      - image: 'cypress/browsers:node-20.6.1-chrome-118.0.5993.88-1-ff-118.0.2-edge-118.0.2088.46-1'
+
 workflows:
-  build-and-test:
+  build:
     jobs:
-      - test-node
-      - build-node:
+      # first, run a single job to install dependencies and Cypress
+      # and perform a few more small steps like linting
+      - cypress/install:
+          name: Install
+          build: npm run build
+          post-steps:
+            - run:
+                name: Show info 📺
+                command: npx cypress info
+            # catch accidental "it.only" tests
+            - run:
+                name: Catch accidental "it.only" 🖐
+                command: npm run stop-only
+
+      # reuse the workspace from the install job
+      # to run end-to-end tests in Electron browser
+      - cypress/run:
+          name: Electron test
           requires:
-            - test-node
-    # - deploy:
-    #     requires:
-    #       - build-node
+            - Install
+          install-command: echo 'Nothing to install in this job'
+          # to run tests, we need to start the web application
+          start: npm start
+          wait-on: 'http://localhost:3003'
+          no-workspace: true
+          store_artifacts: true
+
+      # reuse the workspace from the install job
+      # to run end-to-end tests in Firefox browser
+      - cypress/run:
+          name: Firefox test
+          executor: with-ff
+          requires:
+            - Install
+          install-command: echo 'Nothing to install in this job'
+          # to run tests, we need to start the web application
+          start: npm start
+          wait-on: 'http://localhost:3003'
+          # run tests using Firefox browser pre-installed in the executor image
+          browser: firefox
+          no-workspace: true
+          store_artifacts: true
+
+      # wait for all jobs to finish and possible run NPM release
+      - cypress/run:
+          name: NPM release
+          executor: with-ff
+          requires:
+            - Install
+            - Electron test
+            - Firefox test
+          # nothing to install - cypress/install job does it
+          # and nothing to pass to the next job
+          install-command: echo 'Nothing to install in this job'
+          no-workspace: true
+          # instead of "cypress run" do NPM release 😁
+          command: npm run semantic-release
