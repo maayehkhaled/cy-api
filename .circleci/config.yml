@@ -14,7 +14,7 @@ workflows:
     jobs:
       # first, run a single job to install dependencies and Cypress
       # and perform a few more small steps like linting
-      - cypress/install:
+      - cypress/run:
           name: Install
           build: npm run build
           post-steps:
