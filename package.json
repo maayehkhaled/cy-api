@@ -1,5 +1,5 @@
 {
-  "name": "@kmaayeh/cy-api",
+  "name": "@maayehkhaled/cy-api",
   "version": "0.0.0-development",
   "description": "Custom command cy.api based on @bahmutov/cy-api",
   "main": "dist/index.js",
