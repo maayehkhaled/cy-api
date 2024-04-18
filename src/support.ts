@@ -300,10 +300,12 @@ Cypress.Commands.add(
                 '<div class="block">\n'+
                 '<div class="label"> Headers</div>\n'+
                 '<pre class="code-block"><code class="language-json">\n'+
+               // @ts-ignore
                 formatRequest(options.headers)+
                 '</code></pre>\n'+
                 '<div class="label"> Body</div>\n'+
                 '<pre class="code-block"><code class="language-json">\n'+
+                // @ts-ignore
                 formatRequest(options.body)+
                 '</code></pre>\n'+
                 '</div>\n'+
@@ -613,6 +615,7 @@ const formatResponse = (
         return body
     }
 }
+// @ts-ignore
 function getStatusColorClass(statusCode) {
     let colorClass = '';
     switch (statusCode.toString()[0]) {
@@ -633,7 +636,7 @@ function getStatusColorClass(statusCode) {
     }
     return colorClass;
 }
-
+// @ts-ignore
     function getMethodColor(method) {
         switch (method.toLowerCase()) {
             case 'get':
