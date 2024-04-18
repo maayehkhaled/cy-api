@@ -4,7 +4,8 @@
         "declaration": true,
         "allowJs": true,
         "target": "es5",
-        "strict": true
+        "strict": true,
+      "allowSyntheticDefaultImports": true
     },
     "include": [
         "./src/**/*"

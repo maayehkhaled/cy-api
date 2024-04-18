@@ -5,6 +5,7 @@ import hljs from 'highlight.js'
 const pack = require('../package.json')
 
 
+
 // shortcuts to a few Lodash methods
 const { get, filter, map, uniq } = Cypress._
 
@@ -105,25 +106,46 @@ Cypress.Commands.add(
                                 statusCode.classList.add('color-red');
                                 statusText.classList.add('color-red');
                             }
+
+                            const copyButtonLabel = "Copy Code";
+
+                            // use a class selector if available
+                            let blocks = document.querySelectorAll("pre");
+
+                            blocks.forEach((block) => {
+                                // only add button if browser supports Clipboard API
+                                if (navigator.clipboard) {
+                                    let button = document.createElement("button");
+
+                                    button.innerText = copyButtonLabel;
+                                    block.appendChild(button);
+
+                                    button.addEventListener("click", async () => {
+                                        await copyCode(block, button);
+                                    });
+                                }
+                            });
+
+                            async function copyCode(block, button) {
+                                let code = block.querySelector("code");
+                                let text = code.innerText;
+
+                                await navigator.clipboard.writeText(text);
+
+                                // visual feedback that task is completed
+                                button.innerText = "Code Copied";
+
+                                setTimeout(() => {
+                                    button.innerText = copyButtonLabel;
+                                }, 700);
+                            }
                         </script>
                         <style>
 
                             .container {
                                 padding: 20px;
                             }
-
-                            .url-container {
-                                overflow-x: auto;
-                                white-space: nowrap;
-                                padding: 3px;
-                                border-radius: 5px;
-                                width: 100%; /* Full width of the container */
-                                margin: 0;
-                            }
-
-                            .url-container pre {
-                                margin: 0;
-                            }
+                            
 
                             body {
                                 font-family: Arial, sans-serif;
@@ -131,14 +153,7 @@ Cypress.Commands.add(
                                 flex-direction: column;
                                 gap: 10px;
                             }
-
-                            .top-section {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: flex-start;
-                                gap: 20px;
-                            }
-
+                            
                             .label {
                                 font-weight: bold;
                                 margin-bottom: 5px;
@@ -152,12 +167,7 @@ Cypress.Commands.add(
                                 font-weight: bold;
                                 color: #333;
                             }
-
-                            .url-container {
-                                overflow-x: auto;
-                                white-space: nowrap;
-                            }
-
+                            
                             .section {
                                 display: flex;
                                 gap: 20px;
@@ -167,20 +177,41 @@ Cypress.Commands.add(
                                 flex-basis: 50%;
                             }
 
-                            pre {
-                                background-color: #282c34;
-                                color: #abb2bf;
-                                padding: 10px;
-                                border-radius: 5px;
-                                overflow-x: auto;
-                                overflow-y: auto;
-                                max-height: 300px;
-                                text-align: left; /* Align content to left */
+                            
+
+                            pre[class*="language-"] {
+                                position: relative;
+                                overflow: auto;
+
+                                /* make space  */
+                                margin: 5px 0;
+                                padding: 1.75rem 0 1.75rem 1rem;
+                                border-radius: 10px;
                             }
 
-                            .code-block {
-                                margin-bottom: 15px;
+                            pre[class*="language-"] button {
+                                position: absolute;
+                                top: 5px;
+                                right: 5px;
+
+                                font-size: 0.9rem;
+                                padding: 0.15rem;
+                                background-color: #828282;
+
+                                border: ridge 1px #7b7b7c;
+                                border-radius: 5px;
+                                text-shadow: #c4c4c4 0 0 2px;
                             }
+
+                            pre[class*="language-"] button:hover {
+                                cursor: pointer;
+                                background-color: #bcbabb;
+                            }
+                            
+                            h1 {
+                                font-size: 1.3rem;
+                            }
+                            
 
                             code {
                                 font-family: 'Courier New', Courier, monospace;
@@ -218,68 +249,14 @@ Cypress.Commands.add(
                             .status-text.color-red {
                                 color: red;
                             }
-
-                            .method-get {
-                                color: #080895;
-                            }
-
-                            .method-post {
-                                color: green;
-                            }
-
-                            .method-put {
-                                color: orange;
-                            }
-
-                            .method-delete {
-                                color: red;
-                            }
-
-                            .method-patch {
-                                color: purple;
-                            }
-
-                            .method-head {
-                                color: cyan;
-                            }
-
-                            .method-options {
-                                color: yellow;
-                            }
-
-                            .url-container pre span.method-get {
-                                color: blue;
-                            }
-
-                            .url-container pre span.method-post {
-                                color: green;
-                            }
-
-                            .url-container pre span.method-put {
-                                color: orange;
-                            }
-
-                            .url-container pre span.method-delete {
-                                color: red;
-                            }
-
-                            .url-container pre span.method-patch {
-                                color: purple;
-                            }
-
-                            .url-container pre span.method-head {
-                                color: cyan;
-                            }
-
-                            .url-container pre span.method-options {
-                                color: yellow;
-                            }
+                            
+                            
                         </style>
                     </head>
                 `
             } else {
-                // container.innerHTML += '<br><hr>\n'
-                // topMargin = '1em'
+                container.innerHTML += '<br><hr>\n'
+                topMargin = '1em'
             }
         }
 
@@ -288,26 +265,9 @@ Cypress.Commands.add(
                 // should we use custom class and insert class style?
                 '<details>\n'+
                 `<summary>${options.url}</summary>\n`+
-                '<div class="top-section">\n'+
-                '<div>\n'+
-                '<div class="label">URL</div>\n'+
-                '<div class="url-container">\n'+
-                `<pre><code class="language-json"><span class="${getMethodColor(options.method)}">${options.method}</span> ${options.url}</code></pre>\n`+
-                '</div>\n'+
-                '</div>\n'+
-                '</div>\n'+
-
                 '<div class="block">\n'+
-                '<div class="label"> Headers</div>\n'+
-                '<pre class="code-block"><code class="language-json">\n'+
-               // @ts-ignore
-                formatRequest(options.headers)+
-                '</code></pre>\n'+
-                '<div class="label"> Body</div>\n'+
-                '<pre class="code-block"><code class="language-json">\n'+
-                // @ts-ignore
-                formatRequest(options.body)+
-                '</code></pre>\n'+
+                '<div class="label"> Request</div>\n'+
+                `<pre class="language-bash"><code>${jsonToCurl(options)}</code></pre>\n`+
                 '</div>\n'+
                 '</details>\n'
 
@@ -360,15 +320,15 @@ Cypress.Commands.add(
                             `<summary>response</summary>\n`+
                             '   <div class="block">\n'+
                             '   <div class="label"> Headers</div>\n'+
-                            ' <pre class="code-block"><code class="language-json">\n'+
+                            ' <pre class="language-json"><code >\n'+
                             formatResponseHeaders(headers) +
                             '</code></pre>\n'+
                             ' <div class="label">Response Body</div>\n'+
                             ' <div class="label">Status</div>\n'+
                             `<div><label class="status-code ${getStatusColorClass(status)}">${status}</label> | <span class="status-text ${getStatusColorClass(status)}">${statusText}</span> | Duration: <span class="duration">${duration}</span></div>\n`+
-                            ' <pre class="code-block">\n'+
+                            ' <pre class="language-json"><code>\n'+
                             formatResponse(body, headers) +
-                            '<code class="language-json"></code></pre>\n'+
+                            '</code></pre>\n'+
                             ' </div>\n'+
                             ' </>\n'+
                         '</details>\n'
@@ -657,4 +617,39 @@ const getStatusColorClass=(statusCode)=> {
                 return 'color-default'; // You can set a default color for unknown methods
         }
     }
+
+// Define a function to convert JSON object to cURL command
+function jsonToCurl(json: any): string {
+    let curlCommand = 'curl';
+
+    // Add HTTP method
+    curlCommand += ` -X ${json.method}`;
+
+    // Add headers
+    if (json.headers) {
+        Object.entries(json.headers).forEach(([key, value]) => {
+            curlCommand += `\n -H "${key}: ${value}"`;
+        });
+    }
+
+    // Add request body if present
+    if (json.body) {
+        curlCommand += ` \n--data '${JSON.stringify(json.body)}'`;
+    }
+
+    // Add URL
+    curlCommand += ` \n ${json.url}`;
+
+    // Add query parameters if present
+    if (json.qs) {
+        const queryParams = new URLSearchParams(json.qs);
+        curlCommand += `?${queryParams.toString()}`;
+    }
+
+    return curlCommand;
+}
+
+
+
+
 

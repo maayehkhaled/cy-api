@@ -53,6 +53,7 @@
   "dependencies": {
     "@types/common-tags": "1.8.2",
     "common-tags": "1.8.2",
+    "curlconverter": "^4.9.0",
     "highlight.js": "11.4.0"
   },
   "publishConfig": {
