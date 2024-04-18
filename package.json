@@ -1,7 +1,7 @@
 {
-  "name": "@bahmutov/cy-api",
+  "name": "@kmaayeh/cy-api",
   "version": "0.0.0-development",
-  "description": "Custom command cy.api",
+  "description": "Custom command cy.api based on @bahmutov/cy-api",
   "main": "dist/index.js",
   "types": "dist/types.d.ts",
   "files": [
@@ -21,19 +21,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bahmutov/cy-api.git"
+    "url": "https://github.com/maayehkhaled/cy-api.git"
   },
   "keywords": [
     "cypress",
     "cypress-io",
     "cy-api"
   ],
-  "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com> (https://glebbahmutov.com/)",
+  "author": "khaled maayeh <maayehkhalked@gmail.com> (https://subformfx.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bahmutov/cy-api/issues"
+    "url": "https://github.com/maayehkhaled/cy-api/issues"
   },
-  "homepage": "https://github.com/bahmutov/cy-api#readme",
+  "homepage": "https://github.com/maayehkhaled/cy-api#readme",
   "devDependencies": {
     "@bahmutov/all-logs": "1.8.1",
     "@types/node": "17.0.18",
