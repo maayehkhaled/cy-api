@@ -616,7 +616,7 @@ const formatResponse = (
     }
 }
 // @ts-ignore
-function getStatusColorClass(statusCode) {
+const getStatusColorClass=(statusCode)=> {
     let colorClass = '';
     switch (statusCode.toString()[0]) {
         case '2':
@@ -637,7 +637,7 @@ function getStatusColorClass(statusCode) {
     return colorClass;
 }
 // @ts-ignore
-    function getMethodColor(method) {
+    const getMethodColor=(method) =>{
         switch (method.toLowerCase()) {
             case 'get':
                 return 'method-get';
