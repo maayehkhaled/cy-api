@@ -1,16 +1,15 @@
 /// <reference types="cypress" />
 
-import { html } from 'common-tags'
+import {html} from 'common-tags'
 import hljs from 'highlight.js'
+
 const pack = require('../package.json')
 
 
-
 // shortcuts to a few Lodash methods
-const { get, filter, map, uniq } = Cypress._
+const {get, filter, map, uniq} = Cypress._
 
 let firstApiRequest: boolean
-
 let globalDisplayRequest = true
 
 Cypress.on('test:before:run', () => {
@@ -25,11 +24,7 @@ Cypress.on('test:before:run', () => {
 })
 
 function initApiOptions(): ApiOptions {
-    if (globalDisplayRequest === false) {
-        return { displayRequest: false }
-    } else {
-        return { displayRequest: true }
-    }
+    return {displayRequest: globalDisplayRequest}
 }
 
 Cypress.Commands.add(
@@ -41,7 +36,7 @@ Cypress.Commands.add(
         const hasApiMessages = Cypress.env('API_MESSAGES') === false ? false : true
         let normalizedTypes: string[] = []
         let normalizedNamespaces: string[] = []
-        var { container, win, doc } = getContainer()
+        var {container, win, doc} = getContainer()
         const messagesEndpoint = get(
             Cypress.env(),
             'cyApi.messages',
@@ -145,7 +140,7 @@ Cypress.Commands.add(
                             .container {
                                 padding: 20px;
                             }
-                            
+
 
                             body {
                                 font-family: Arial, sans-serif;
@@ -153,7 +148,7 @@ Cypress.Commands.add(
                                 flex-direction: column;
                                 gap: 10px;
                             }
-                            
+
                             .label {
                                 font-weight: bold;
                                 margin-bottom: 5px;
@@ -167,7 +162,7 @@ Cypress.Commands.add(
                                 font-weight: bold;
                                 color: #333;
                             }
-                            
+
                             .section {
                                 display: flex;
                                 gap: 20px;
@@ -177,7 +172,6 @@ Cypress.Commands.add(
                                 flex-basis: 50%;
                             }
 
-                            
 
                             pre[class*="language-"] {
                                 position: relative;
@@ -207,11 +201,11 @@ Cypress.Commands.add(
                                 cursor: pointer;
                                 background-color: #bcbabb;
                             }
-                            
+
                             h1 {
                                 font-size: 1.3rem;
                             }
-                            
+
 
                             code {
                                 font-family: 'Courier New', Courier, monospace;
@@ -249,8 +243,8 @@ Cypress.Commands.add(
                             .status-text.color-red {
                                 color: red;
                             }
-                            
-                            
+
+
                         </style>
                     </head>
                 `
@@ -260,116 +254,40 @@ Cypress.Commands.add(
             }
         }
 
-        if (apiOptions.displayRequest) {
-            container.innerHTML +=
-                // should we use custom class and insert class style?
-                '<details>\n'+
-                `<summary>${options.url}</summary>\n`+
-                '<div class="block">\n'+
-                '<div class="label"> Request</div>\n'+
-                `<pre class="language-bash"><code>${jsonToCurl(options)}</code></pre>\n`+
-                '</div>\n'+
-                '</details>\n'
-
-        }
-
         cy.request({
             ...options,
             log: false,
+        }).then((requestResponse) => {
+
+            if (apiOptions.displayRequest) {
+                container.innerHTML +=
+                    // should we use custom class and insert class style?
+                    '<details>\n' +
+                    `<summary>${options.method} ${options.url}</summary>\n` +
+                    '<div class="block">\n' +
+                    '<div class="label"> Request</div>\n' +
+                    `<pre class="language-bash"><code>${jsonToCurl(options)}</code></pre>\n` +
+                    '</div>\n' +
+                    `<summary>response</summary>\n` +
+                    '   <div class="block">\n' +
+                    '   <div class="label"> Headers</div>\n' +
+                    ' <pre class="language-json"><code>\n' +
+                    formatResponseHeaders(requestResponse.headers) +
+                    '</code></pre>\n' +
+                    ' <div class="label">Response Body</div>\n' +
+                    ' <div class="label">Status</div>\n' +
+                    `<div><label class="status-code ${getStatusColorClass(requestResponse.status)}">${requestResponse.status}</label> | <span class="status-text ${getStatusColorClass(requestResponse.status)}">${requestResponse.statusText}</span> | Duration: <span class="duration">${requestResponse.duration} ms</span></div>\n` +
+                    ' <pre class="language-json"><code>\n' +
+                    formatResponse(requestResponse.body, requestResponse.headers) +
+                    '</code></pre>\n' +
+                    ' </div>\n' +
+                    ' </>\n' +
+                    '</details>\n'
+            }
         })
-            .then(
-                ({ duration, body, status, headers, requestHeaders, statusText }) => {
-                    return printResponse(
-                        container,
-                        hasApiMessages,
-                        messagesEndpoint,
-                        normalizedTypes,
-                        normalizedNamespaces,
-                        apiOptions.displayRequest,
-                    ).then(({ messages }) => {
-                        return cy.wrap(
-                            {
-                                messages,
-                                duration,
-                                body,
-                                status,
-                                headers,
-                                requestHeaders,
-                                statusText,
-                            },
-                            { log: false },
-                        )
-                    })
-                },
-            )
-            .then(
-                ({
-                     messages,
-                     duration,
-                     body,
-                     status,
-                     headers,
-                     requestHeaders,
-                     statusText,
-                 }) => {
-                    // render the response object
-                    // TODO render headers?
-                    if (apiOptions.displayRequest) {
-                        container.innerHTML +=
-                            '<details>\n'+
-                            `<summary>response</summary>\n`+
-                            '   <div class="block">\n'+
-                            '   <div class="label"> Headers</div>\n'+
-                            ' <pre class="language-json"><code >\n'+
-                            formatResponseHeaders(headers) +
-                            '</code></pre>\n'+
-                            ' <div class="label">Response Body</div>\n'+
-                            ' <div class="label">Status</div>\n'+
-                            `<div><label class="status-code ${getStatusColorClass(status)}">${status}</label> | <span class="status-text ${getStatusColorClass(status)}">${statusText}</span> | Duration: <span class="duration">${duration}</span></div>\n`+
-                            ' <pre class="language-json"><code>\n'+
-                            formatResponse(body, headers) +
-                            '</code></pre>\n'+
-                            ' </div>\n'+
-                            ' </>\n'+
-                        '</details>\n'
-                    }
 
-                    // log the response
-                    Cypress.log({
-                        name: 'response',
-                        message: JSON.stringify(body, null, 4),
-                        consoleProps() {
-                            return {
-                                type: typeof body,
-                                response: body,
-                            }
-                        },
-                    })
+    })
 
-                    for (const type of normalizedTypes) {
-                        addOnClickFilter(type)
-                    }
-
-                    for (const namespace of normalizedNamespaces) {
-                        addOnClickFilter(namespace)
-                    }
-
-                    win.scrollTo(0, doc.body.scrollHeight)
-
-                    return {
-                        messages,
-                        // original response information
-                        duration,
-                        body,
-                        status,
-                        statusText,
-                        headers,
-                        requestHeaders,
-                    }
-                },
-            )
-    },
-)
 
 const printResponse = (
     container: HTMLElement,
@@ -397,7 +315,7 @@ const printResponse = (
                         return {
                             type,
                             namespaces: uniq(
-                                map(filter(messages, { type }), 'namespace'),
+                                map(filter(messages, {type}), 'namespace'),
                             ).sort(),
                         }
                     })
@@ -457,9 +375,9 @@ const printResponse = (
                     }
                 }
             })
-            .then(() => cy.wrap({ messages }, { log: false }))
+            .then(() => cy.wrap({messages}, {log: false}))
     } else {
-        return cy.wrap({ messages }, { log: false })
+        return cy.wrap({messages}, {log: false})
     }
 }
 
@@ -509,7 +427,7 @@ const getContainer = () => {
         doc.body.appendChild(container)
     }
     container.className = 'container'
-    return { container, win, doc }
+    return {container, win, doc}
 }
 
 const formatJSon = (jsonObject: object) => {
@@ -557,7 +475,7 @@ const formatRequest = (options: Partial<Cypress.RequestOptions>) => {
     return formatJSon(options)
 }
 
-const formatResponseHeaders=(  headers: { [key: string]: string | string[] },) => {
+const formatResponseHeaders = (headers: { [key: string]: string | string[] },) => {
     if (headers?.['content-type']?.includes('application/json')) {
         return formatJSon(headers)
     } else {
@@ -576,7 +494,7 @@ const formatResponse = (
     }
 }
 // @ts-ignore
-const getStatusColorClass=(statusCode)=> {
+const getStatusColorClass = (statusCode) => {
     let colorClass = '';
     switch (statusCode.toString()[0]) {
         case '2':
@@ -596,27 +514,6 @@ const getStatusColorClass=(statusCode)=> {
     }
     return colorClass;
 }
-// @ts-ignore
-    const getMethodColor=(method) =>{
-        switch (method) {
-            case 'GET':
-                return 'method-get';
-            case 'POST':
-                return 'method-post';
-            case 'PUT':
-                return 'method-put';
-            case 'DELETE':
-                return 'color-red';
-            case 'PATCH':
-                return 'color-purple'; // Adding color for PATCH method
-            case 'HEAD':
-                return 'color-cyan'; // Adding color for HEAD method
-            case 'OPTIONS':
-                return 'color-yellow'; // Adding color for OPTIONS method
-            default:
-                return 'color-default'; // You can set a default color for unknown methods
-        }
-    }
 
 // Define a function to convert JSON object to cURL command
 function jsonToCurl(json: any): string {
@@ -624,6 +521,13 @@ function jsonToCurl(json: any): string {
 
     // Add HTTP method
     curlCommand += ` -X ${json.method}`;
+    // Add URL
+    curlCommand += ` ${json.url}`;
+    // Add query parameters if present
+    if (json.qs) {
+        const queryParams = new URLSearchParams(json.qs);
+        curlCommand += `?${queryParams.toString()}`;
+    }
 
     // Add headers
     if (json.headers) {
@@ -637,14 +541,7 @@ function jsonToCurl(json: any): string {
         curlCommand += ` \n--data '${JSON.stringify(json.body)}'`;
     }
 
-    // Add URL
-    curlCommand += ` \n ${json.url}`;
 
-    // Add query parameters if present
-    if (json.qs) {
-        const queryParams = new URLSearchParams(json.qs);
-        curlCommand += `?${queryParams.toString()}`;
-    }
 
     return curlCommand;
 }

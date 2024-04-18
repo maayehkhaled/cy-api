@@ -1,8 +1,8 @@
-# @kmaayeh/cy-api
+# @maayehkhaled/cy-api
 
 > this is a fork work from @bahmutov/cy-api   all credits goes to him not me i only changed the ui of the view  
 
-[![renovate-app badge][renovate-badge]][renovate-app] [![CircleCI](https://circleci.com/gh/maayehkhaled/cy-api/tree/master.svg?style=svg&circle-token=b9f64878ead36e2da438a0563cc4566269aa452b)](https://circleci.com/gh/kmaayeh/cy-api/tree/master) ![cypress version](https://img.shields.io/badge/cypress-13.7.2-brightgreen)
+ ![cypress version](https://img.shields.io/badge/cypress-13.7.2-brightgreen)
 
 > Cypress custom command "cy.api" for end-to-end API testing
 
@@ -12,20 +12,20 @@ This command makes HTTP requests to external servers, then renders the input and
 ## Install
 
 ```
-npm install --save-dev @kmaayeh/cy-api
+npm install --save-dev @maayehkhaled/cy-api
 ```
 
 or
 
 ```
-yarn add -D @kmaayeh/cy-api
+yarn add -D @maayehkhaled/cy-api
 ```
 
 Add the following line to your Cypress support file
 
 ```js
 // usually cypress/support/index.js
-import '@kmaayeh/cy-api'
+import '@maayehkhaled/cy-api'
 ```
 
 This will add a new command `cy.api` for making API requests.
@@ -54,7 +54,7 @@ If your using TypeScript with Cypress, you can add type in your `tsconfig.json`
 ```json
 {
   "compilerOptions": {
-    "types": ["cypress", "@kmaayeh/cy-api"]
+    "types": ["cypress", "@maayehkhaled/cy-api"]
   }
 }
 ```
@@ -70,10 +70,10 @@ If your using TypeScript with Cypress, you can add type in your `tsconfig.json`
 
 ## More info
 > more information about cypress 
-- Read [Black box API testing with server logs](https://glebkmaayeh.com/blog/api-testing-with-server-logs/)
-- Read [Capture all the logs](https://glebkmaayeh.com/blog/capture-all-the-logs/) and [@kmaayeh/all-logs][all-logs] module.
-- Read [You Should Test More Using APIs](https://glebkmaayeh.com/blog/test-using-apis/)
-- Read [Use Cypress For API Testing](https://glebkmaayeh.com/blog/use-cypress-for-api-testing/)
+- Read [Black box API testing with server logs](https://glebmaayehkhaled.com/blog/api-testing-with-server-logs/)
+- Read [Capture all the logs](https://glebmaayehkhaled.com/blog/capture-all-the-logs/) and [@maayehkhaled/all-logs][all-logs] module.
+- Read [You Should Test More Using APIs](https://glebmaayehkhaled.com/blog/test-using-apis/)
+- Read [Use Cypress For API Testing](https://glebmaayehkhaled.com/blog/use-cypress-for-api-testing/)
 
 [all-logs]: https://github.com/bahmutov/all-logs
 
@@ -81,14 +81,14 @@ If your using TypeScript with Cypress, you can add type in your `tsconfig.json`
 
 Author: Gleb bahmutov &lt;gleb.bahmutov@gmail.com&gt; &copy; 2019
 
-- [@kmaayeh](https://twitter.com/bahmutov)
-- [glebbahmutov.com](https://glebkmaayeh.com)
+- [@maayehkhaled](https://twitter.com/bahmutov)
+- [glebbahmutov.com](https://glebmaayehkhaled.com)
 - [blog](https://glebbahmutov.com/blog)
 
 License: MIT - do anything with the code, but don't blame me if it does not work.
 
 Support: if you find any problems with this module, email / tweet /
-[open issue](https://github.com/kmaayeh/cy-api/issues) on Github
+[open issue](https://github.com/maayehkhaled/cy-api/issues) on Github
 
 ## MIT License
 
@@ -115,5 +115,3 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
-[renovate-badge]: https://img.shields.io/badge/renovate-app-blue.svg
-[renovate-app]: https://renovateapp.com/
