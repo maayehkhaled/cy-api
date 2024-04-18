@@ -57,11 +57,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run warn-only",
-      "pre-push": "npm run stop-only && npm run e2e"
-    }
   }
 }
