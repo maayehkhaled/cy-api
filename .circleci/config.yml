@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   # https://github.com/cypress-io/circleci-orb
-  cypress: cypress-io/cypress@3
+  cypress: cypress-io/cypress@1
 
 executors:
   with-ff:
@@ -14,9 +14,9 @@ workflows:
     jobs:
       # first, run a single job to install dependencies and Cypress
       # and perform a few more small steps like linting
-      - cypress/run:
+      - cypress/install:
           name: Install
-          start-command: npm run build
+          build: npm run build
           post-steps:
             - run:
                 name: Show info 📺
