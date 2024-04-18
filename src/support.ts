@@ -638,20 +638,20 @@ const getStatusColorClass=(statusCode)=> {
 }
 // @ts-ignore
     const getMethodColor=(method) =>{
-        switch (method.toLowerCase()) {
-            case 'get':
+        switch (method) {
+            case 'GET':
                 return 'method-get';
-            case 'post':
+            case 'POST':
                 return 'method-post';
-            case 'put':
+            case 'PUT':
                 return 'method-put';
-            case 'delete':
+            case 'DELETE':
                 return 'color-red';
-            case 'patch':
+            case 'PATCH':
                 return 'color-purple'; // Adding color for PATCH method
-            case 'head':
+            case 'HEAD':
                 return 'color-cyan'; // Adding color for HEAD method
-            case 'options':
+            case 'OPTIONS':
                 return 'color-yellow'; // Adding color for OPTIONS method
             default:
                 return 'color-default'; // You can set a default color for unknown methods
