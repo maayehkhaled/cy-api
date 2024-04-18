@@ -16,7 +16,7 @@ workflows:
       # and perform a few more small steps like linting
       - cypress/run:
           name: Install
-          build: npm run build
+          start-command: npm run build
           post-steps:
             - run:
                 name: Show info 📺
