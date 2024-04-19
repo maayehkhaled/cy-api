@@ -16,9 +16,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
       - run: npm ci
-      
+
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
@@ -27,9 +27,14 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm pack . && npm publish *.tgz
+      - name: Prepare files for publishing
+        run: |
+          mkdir publish_files
+          cp README.md publish_files/
+          cp package.json publish_files/
+      - run: npm pack publish_files/ && npm publish *.tgz
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
