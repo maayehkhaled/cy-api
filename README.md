@@ -8,6 +8,7 @@
 
 This command makes HTTP requests to external servers, then renders the input and output where the web application usually is in the Cypress Test Runner. If there are server-side logs using [@bahmutov/all-logs][all-logs], this command fetches them and renders too. Here is typical output:
 
+![`cy.api` in action](images/cy-api.png)
 
 ## Install
 

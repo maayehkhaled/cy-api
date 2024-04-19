@@ -1,6 +1,6 @@
 {
   "name": "@maayehkhaled/cy-api",
-  "version": "0.0.1-alpha",
+  "version": "0.1.0",
   "description": "Custom command cy.api based on @bahmutov/cy-api",
   "main": "dist/index.js",
   "types": "dist/types.d.ts",

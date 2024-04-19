@@ -1,57 +1,36 @@
-name: Cypress Tests
+name: Node.js Package
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to npm registry'
+        required: true
+        default: 'false'
+        type: boolean
 
 jobs:
-  install:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 16
+      - run: npm ci
+      - run: npm test
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Show info 📺
-        run: npx cypress info
-
-      - name: Catch accidental "it.only" 🖐
-        run: npm run stop-only
-
-  npm_release:
+  publish-npm:
+    needs: build
     runs-on: ubuntu-latest
-    needs: [install]
+    if: github.event.inputs.publish == 'true'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '20'
-
-      - name: Install project dependencies
-        run: npm install
-
-      - name: Authenticate with npm
-        run: echo "//registry.npmjs.org/:_authToken=\${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-
-      - name: Authenticate with GitHub
-        run: echo "${{ secrets.GH_TOKEN }}" > ~/.github_token
-
-      - name: Run Semantic Release
-        run: npm run semantic-release
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm pack . && npm publish *.tgz
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
