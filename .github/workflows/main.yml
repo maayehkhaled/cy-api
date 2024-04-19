@@ -28,8 +28,8 @@ jobs:
 
       - name: Catch accidental "it.only" 🖐
         run: npm run stop-only
-        
-  npm_release:
+
+   npm_release:
     runs-on: ubuntu-latest
     needs: [install, electron_test, firefox_test]
     steps:
