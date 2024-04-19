@@ -44,7 +44,14 @@ jobs:
       - name: Install project dependencies
         run: npm install
 
+      - name: Authenticate with npm
+        run: echo "//registry.npmjs.org/:_authToken=\${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Authenticate with GitHub
+        run: echo "${{ secrets.GH_TOKEN }}" > ~/.github_token
+
       - name: Run Semantic Release
         run: npm run semantic-release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
