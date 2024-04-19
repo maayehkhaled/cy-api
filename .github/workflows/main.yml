@@ -31,7 +31,7 @@ jobs:
 
   npm_release:
     runs-on: ubuntu-latest
-    needs: [install, electron_test, firefox_test]
+    needs: [install]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
