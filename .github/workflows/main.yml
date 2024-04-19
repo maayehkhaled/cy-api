@@ -36,7 +36,7 @@ jobs:
           mkdir publish_files
           cp README.md publish_files/
           cp package.json publish_files/
-          cp -r ./dist/ publish_files/
+          cp -r dist/ publish_files/
       - run: npm pack publish_files/ && npm publish *.tgz
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
