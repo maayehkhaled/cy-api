@@ -14,10 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v2
         with:
-          node-version: 20
+          node-version: '20'
       - run: npm ci
+      - run: npm run build
 
   publish-npm:
     needs: build
@@ -25,9 +26,9 @@ jobs:
     if: github.event.inputs.publish == 'true'
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v2
         with:
-          node-version: 20
+          node-version: '20'
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - name: Prepare files for publishing
@@ -35,6 +36,7 @@ jobs:
           mkdir publish_files
           cp README.md publish_files/
           cp package.json publish_files/
+          cp -r ./dist/ publish_files/
       - run: npm pack publish_files/ && npm publish *.tgz
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
