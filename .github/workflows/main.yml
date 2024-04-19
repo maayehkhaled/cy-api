@@ -41,5 +41,8 @@ jobs:
         with:
           node-version: '14'
 
-      - name: NPM Release
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Run Semantic Release
         run: npm run semantic-release
