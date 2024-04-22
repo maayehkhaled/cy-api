@@ -259,6 +259,11 @@ Cypress.Commands.add(
             log: false,
         }).then((requestResponse) => {
 
+            console.log({requestResponse});
+            if(requestResponse.body===undefined){
+                requestResponse.body={};
+            }
+
             if (apiOptions.displayRequest) {
                 container.innerHTML +=
                     // should we use custom class and insert class style?
@@ -487,8 +492,11 @@ const formatResponse = (
     body: object,
     headers: { [key: string]: string | string[] }
 ) => {
+
     if (headers?.['content-type']?.includes('application/json')) {
+        if(body.toString().length>0){
         return formatJSon(body)
+        }
     } else {
         return body
     }
