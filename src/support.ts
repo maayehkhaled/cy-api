@@ -12,78 +12,28 @@ const {get, filter, map, uniq} = Cypress._
 let firstApiRequest: boolean
 let globalDisplayRequest = true
 
-Cypress.on('test:before:run', () => {
+Cypress.on('before', () => {
     // @ts-ignore
-    const apiDisplayRequest = Cypress.config('apiDisplayRequest')
+    const apiDisplayRequest = Cypress.config('apiDisplayRequest');
     globalDisplayRequest =
-        apiDisplayRequest === undefined ? true : (apiDisplayRequest as boolean)
-    firstApiRequest = true
+        apiDisplayRequest === undefined ? true : (apiDisplayRequest as boolean);
+    firstApiRequest = true;
     // @ts-ignore
-    const doc: Document = cy.state('document')
-    doc.body.innerHTML = ''
-})
+    const doc: Document = cy.state('document');
+    doc.body.innerHTML = '';
+});
 
 function initApiOptions(): ApiOptions {
-    return {displayRequest: globalDisplayRequest}
+    return { displayRequest: globalDisplayRequest };
 }
 
-Cypress.Commands.add(
-    'api',
-    (options: Partial<Cypress.RequestOptions>) => {
-        //@ts-ignore
-        let name = options.name
-        const apiOptions = initApiOptions()
-        const hasApiMessages = Cypress.env('API_MESSAGES') === false ? false : true
-        let normalizedTypes: string[] = []
-        let normalizedNamespaces: string[] = []
-        var {container, win, doc} = getContainer()
-        const messagesEndpoint = get(
-            Cypress.env(),
-            'cyApi.messages',
-            '/__messages__',
-        )
-
-        // first reset any messages on the server
-        if (hasApiMessages) {
-            cy.request({
-                method: 'POST',
-                url: messagesEndpoint,
-                log: false,
-                failOnStatusCode: false, // maybe there is no endpoint with logs
-            })
-        }
-
-        // should we log the message before a request
-        // in case it fails?
-        Cypress.log({
-            name,
-            message: options.url,
-            consoleProps() {
-                return {
-                    request: options,
-                }
-            },
-        })
-
-        let topMargin = '0'
-        // if (firstApiRequest) {
-        //     container.innerHTML = ''
-        // }
-        if (apiOptions.displayRequest) {
-            if (firstApiRequest) {
-                // remove existing content from the application frame
-                firstApiRequest = false
-                container.innerHTML = html`
-                    <head>
-                        <link
-                                rel="stylesheet"
-                                href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-okaidia.min.css">
-                        <script
-                                src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
-
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
-                        <script>
+// Move the CSS and scripts to the head section
+const headScriptsAndStyles = `
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-okaidia.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
+<script>
                             // Add color coding based on status code
                             const statusCode = document.querySelector('.status-code');
                             const statusText = document.querySelector('.status-text');
@@ -246,12 +196,114 @@ Cypress.Commands.add(
 
 
                         </style>
-                    </head>
-                `
-            } else {
-                container.innerHTML += '<br><hr>\n'
-                topMargin = '1em'
-            }
+`;
+
+
+function addTestNameToHTML(testName) {
+    const doc: Document = cy.state('document');
+    const { container, win, doc: containerDoc } = getContainer();
+    
+    const sizeOfElements = container.querySelectorAll('details');
+    
+    if (sizeOfElements.length) {
+        // Find the last <details> element
+        const lastDetailsElement = sizeOfElements[sizeOfElements.length - 1];
+            
+    
+        // Create the test name element and apply CSS styling for padding from the top
+        const testNameElement = containerDoc.createElement('div');
+        testNameElement.innerHTML = `<br><hr>
+         Running test: ${testName}`; // Include the flask-vial icon in the test name
+        testNameElement.style.paddingTop = '10px'; // Adjust the padding as needed
+        testNameElement.style.backgroundColor = '#f0f0f0'; // Background color
+        testNameElement.style.padding = '10px'; // Padding
+        testNameElement.style.borderRadius = '5px'; // Border radius
+        testNameElement.style.display = 'flex'; // Enable flexbox
+        testNameElement.style.justifyContent = 'center'; // Center horizontally
+        testNameElement.style.alignItems = 'center';
+        testNameElement.style.flexDirection = 'column';
+        // Append the icon element and the test name element after the last <details> element
+        lastDetailsElement.insertAdjacentElement('afterend', testNameElement);
+    } else {
+        // If there are no <details> elements, prepend the icon and test name elements to the container directly
+    
+        const testNameElement = containerDoc.createElement('div');
+        testNameElement.innerHTML = ` <br><hr>
+          Running test: ${testName}`; // Include the flask-vial icon in the test name
+        testNameElement.style.paddingTop = '10px'; // Adjust the padding as needed
+        testNameElement.style.backgroundColor = '#f0f0f0'; // Background color
+        testNameElement.style.padding = '10px'; // Padding
+        testNameElement.style.borderRadius = '5px'; // Border radius
+        testNameElement.style.display = 'flex'; // Enable flexbox
+        testNameElement.style.alignItems = 'center'; // Center vertically
+        testNameElement.style.justifyContent = 'center'; // Center horizontally
+        testNameElement.style.flexDirection = 'column';
+
+        // Append the icon and test name elements to the container
+        container.insertBefore(testNameElement, container.firstChild);
+    }
+    
+    
+
+}
+
+Cypress.on('test:before:run', (testDetails) => {
+    const testName = testDetails?.title;
+    if (testName) {
+        addTestNameToHTML(testName);
+    }
+});
+
+Cypress.Commands.add(
+    'api',
+    (options: Partial<Cypress.RequestOptions>) => {
+        //@ts-ignore
+        let name = options.name;
+        const apiOptions = initApiOptions();
+        const hasApiMessages = Cypress.env('API_MESSAGES') === false ? false : true;
+        let normalizedTypes: string[] = [];
+        let normalizedNamespaces: string[] = [];
+        var { container, win, doc } = getContainer();
+        const messagesEndpoint = get(
+            Cypress.env(),
+            'cyApi.messages',
+            '/__messages__'
+        );
+
+        // Append the head scripts and styles
+        if (apiOptions.displayRequest) {
+            doc.head.innerHTML = headScriptsAndStyles;
+        }
+
+        // first reset any messages on the server
+        if (hasApiMessages) {
+            cy.request({
+                method: 'POST',
+                url: messagesEndpoint,
+                log: false,
+                failOnStatusCode: false, // maybe there is no endpoint with logs
+            });
+        }
+
+        // should we log the message before a request
+        // in case it fails?
+        Cypress.log({
+            name,
+            message: options.url,
+            consoleProps() {
+                return {
+                    request: options,
+                };
+            },
+        });
+
+        let topMargin = '0';
+    
+        if (apiOptions.displayRequest) {
+            
+                container.innerHTML += '<br><hr>\n';
+                topMargin = '1em';
+            
         }
 
         cy.request({
@@ -259,9 +311,9 @@ Cypress.Commands.add(
             log: false,
         }).then((requestResponse) => {
 
-            console.log({requestResponse});
-            if(requestResponse.body===undefined){
-                requestResponse.body={};
+            console.log({ requestResponse });
+            if (requestResponse.body === undefined) {
+                requestResponse.body = {};
             }
 
             if (apiOptions.displayRequest) {
@@ -287,11 +339,12 @@ Cypress.Commands.add(
                     '</code></pre>\n' +
                     ' </div>\n' +
                     ' </>\n' +
-                    '</details>\n'
+                    '</details>\n';
             }
-        })
+        });
 
-    })
+    });
+
 
 
 const printResponse = (
@@ -481,26 +534,17 @@ const formatRequest = (options: Partial<Cypress.RequestOptions>) => {
 }
 
 const formatResponseHeaders = (headers: { [key: string]: string | string[] },) => {
-    if (headers?.['content-type']?.includes('application/json')) {
         return formatJSon(headers)
-    } else {
-        return headers
-    }
 }
 
-const formatResponse = (
-    body: object,
-    headers: { [key: string]: string | string[] }
-) => {
+const formatResponse = (body, headers) => {
+            return JSON.stringify(body, null, 2); // Convert object to JSON string with indentation for readability
+};
 
-    if (headers?.['content-type']?.includes('application/json')) {
-        if(body.toString().length>0){
-        return formatJSon(body)
-        }
-    } else {
-        return body
-    }
-}
+
+
+
+
 // @ts-ignore
 const getStatusColorClass = (statusCode) => {
     let colorClass = '';
