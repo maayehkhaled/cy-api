@@ -1,13 +1,13 @@
 /// <reference types="cypress" />
 
-import {html} from 'common-tags'
+import { html } from 'common-tags'
 import hljs from 'highlight.js'
 
 const pack = require('../package.json')
 
 
 // shortcuts to a few Lodash methods
-const {get, filter, map, uniq} = Cypress._
+const { get, filter, map, uniq } = Cypress._
 
 let firstApiRequest: boolean
 let globalDisplayRequest = true
@@ -198,18 +198,23 @@ const headScriptsAndStyles = `
                         </style>
 `;
 
-
-function addTestNameToHTML(testName) {
+/**
+ * Create a test name element and apply CSS styling based on the input test name.
+ *
+ * @param {string} testName - The name of the test to be displayed
+ */
+function addTestNameToHTML(testName:string) {
+        // @ts-ignore
     const doc: Document = cy.state('document');
     const { container, win, doc: containerDoc } = getContainer();
-    
+
     const sizeOfElements = container.querySelectorAll('details');
-    
+
     if (sizeOfElements.length) {
         // Find the last <details> element
         const lastDetailsElement = sizeOfElements[sizeOfElements.length - 1];
-            
-    
+
+
         // Create the test name element and apply CSS styling for padding from the top
         const testNameElement = containerDoc.createElement('div');
         testNameElement.innerHTML = `<br><hr>
@@ -226,7 +231,7 @@ function addTestNameToHTML(testName) {
         lastDetailsElement.insertAdjacentElement('afterend', testNameElement);
     } else {
         // If there are no <details> elements, prepend the icon and test name elements to the container directly
-    
+
         const testNameElement = containerDoc.createElement('div');
         testNameElement.innerHTML = ` <br><hr>
           Running test: ${testName}`; // Include the flask-vial icon in the test name
@@ -242,8 +247,8 @@ function addTestNameToHTML(testName) {
         // Append the icon and test name elements to the container
         container.insertBefore(testNameElement, container.firstChild);
     }
-    
-    
+
+
 
 }
 
@@ -298,12 +303,12 @@ Cypress.Commands.add(
         });
 
         let topMargin = '0';
-    
+
         if (apiOptions.displayRequest) {
-            
-                container.innerHTML += '<br><hr>\n';
-                topMargin = '1em';
-            
+
+            container.innerHTML += '<br><hr>\n';
+            topMargin = '1em';
+
         }
 
         cy.request({
@@ -373,7 +378,7 @@ const printResponse = (
                         return {
                             type,
                             namespaces: uniq(
-                                map(filter(messages, {type}), 'namespace'),
+                                map(filter(messages, { type }), 'namespace'),
                             ).sort(),
                         }
                     })
@@ -433,9 +438,9 @@ const printResponse = (
                     }
                 }
             })
-            .then(() => cy.wrap({messages}, {log: false}))
+            .then(() => cy.wrap({ messages }, { log: false }))
     } else {
-        return cy.wrap({messages}, {log: false})
+        return cy.wrap({ messages }, { log: false })
     }
 }
 
@@ -485,7 +490,7 @@ const getContainer = () => {
         doc.body.appendChild(container)
     }
     container.className = 'container'
-    return {container, win, doc}
+    return { container, win, doc }
 }
 
 const formatJSon = (jsonObject: object) => {
@@ -534,11 +539,18 @@ const formatRequest = (options: Partial<Cypress.RequestOptions>) => {
 }
 
 const formatResponseHeaders = (headers: { [key: string]: string | string[] },) => {
-        return formatJSon(headers)
+    return formatJSon(headers)
 }
 
-const formatResponse = (body, headers) => {
-            return JSON.stringify(body, null, 2); // Convert object to JSON string with indentation for readability
+/**
+ * Converts the given body to a JSON string with indentation for readability.
+ *
+ * @param {any} body - The object to be converted to a JSON string.
+ * @param {any} headers - The headers of the response.
+ * @return {string} The JSON string representation of the body.
+ */
+const formatResponse = (body:any, headers:any) => {
+    return JSON.stringify(body, null, 2); // Convert object to JSON string with indentation for readability
 };
 
 
