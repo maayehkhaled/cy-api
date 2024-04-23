@@ -66,9 +66,9 @@ Cypress.Commands.add(
         })
 
         let topMargin = '0'
-        if (firstApiRequest) {
-            container.innerHTML = ''
-        }
+        // if (firstApiRequest) {
+        //     container.innerHTML = ''
+        // }
         if (apiOptions.displayRequest) {
             if (firstApiRequest) {
                 // remove existing content from the application frame
